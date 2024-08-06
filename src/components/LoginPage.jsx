@@ -7,6 +7,7 @@ import { generateCodeVerifier, generateCodeChallenge } from '../utils/pkce'; // 
 import { exchangeCodeForToken } from '../utils/TokenExchange'; // Ensure correct path
 import { createAvatar } from '@dicebear/core';
 import { dylan } from '@dicebear/collection';
+import { useNavigate } from 'react-router-dom';
 
 // Define styled components
 const Container = styled.div`
@@ -173,22 +174,7 @@ const handleLogin = async () => {
   window.location.href = authURL;
 };
 
-const handleRedirect = async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get('code');
-  const codeVerifier = localStorage.getItem('code_verifier');
 
-  if (code && codeVerifier) {
-    try {
-      const tokenResponse = await exchangeCodeForToken(code, codeVerifier);
-      console.log('Token Response:', tokenResponse);
-      localStorage.setItem('access_token', tokenResponse.access_token);
-      // Proceed to fetch patient data or navigate to a different page
-    } catch (error) {
-      console.error('Error exchanging code for token:', error);
-    }
-  }
-};
 
 // Generate avatar URL
 const generateAvatarUrl = () => {
@@ -201,17 +187,28 @@ const generateAvatarUrl = () => {
 
 const LoginPage = () => {
   const [avatarUrl, setAvatarUrl] = useState('');
-
+const navigate = useNavigate();
   useEffect(() => {
     handleRedirect();
-    setAvatarUrl(generateAvatarUrl());
-  }, []);
-  useEffect(async()=>{
-    const code = new URL(window.location.href).searchParams.get('code');
-    if (code && codeVerifier) {
-        await exchangeCodeForToken(code, codeVerifier)}
 
-  },[])
+    // setAvatarUrl(generateAvatarUrl());
+  }, []);
+  const handleRedirect = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const codeVerifier = localStorage.getItem('code_verifier');
+  
+    if (code && codeVerifier) {
+      try {
+        const tokenResponse = await exchangeCodeForToken(code, codeVerifier);
+        console.log('Token Response:', tokenResponse);
+        localStorage.setItem('access_token', tokenResponse.access_token);
+        navigate("/dashboard")
+      } catch (error) {
+        console.error('Error exchanging code for token:', error);
+      }
+    }
+  };
 
   return (
     <Container>        
