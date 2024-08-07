@@ -1,21 +1,32 @@
 // src/components/PatientDashboard.jsx
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import avatar from '../assets/avatar_logo.png'
 import { fetchPatientData, fetchMedications, fetchLabReports, fetchVitalSigns } from '../utils/DataFetching';
 
 const Container = styled.div`
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #1cbb9b;
 `;
 
 const Section = styled.div`
   margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px; /* Adjust as needed */
+  padding: 10px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
+
 const Title = styled.h2`
-  color: #00415d;
+  color: #FFF;
 `;
 
 const List = styled.ul`
@@ -26,12 +37,22 @@ const List = styled.ul`
 const ListItem = styled.li`
   margin: 5px 0;
 `;
+const Avatar = styled.img`
+  display: block;
+  margin: 20px auto;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+`;
 
-const PatientDashboard = ({ accessToken }) => {
+const PatientDashboard = () => {
+const accessToken = localStorage.getItem("access_token")
   const [patient, setPatient] = useState(null);
   const [medications, setMedications] = useState([]);
   const [labReports, setLabReports] = useState([]);
   const [vitalSigns, setVitalSigns] = useState([]);
+
 
   useEffect(() => {
     if (accessToken) {
@@ -47,12 +68,15 @@ const PatientDashboard = ({ accessToken }) => {
       // Fetch vital signs
       fetchVitalSigns(accessToken).then(data => setVitalSigns(data));
     }
+    
+    
   }, [accessToken]);
 
   if (!patient) return <div>Loading...</div>;
 
   return (
     <Container>
+        <Avatar src={avatar} alt="Patient Avatar" />
       <Section>
         <Title>Patient Information</Title>
         <div>Name: {patient.name}</div>

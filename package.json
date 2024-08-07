@@ -13,6 +13,7 @@
     "@dicebear/collection": "^9.2.1",
     "@dicebear/core": "^9.2.1",
     "axios": "^1.7.3",
+    "jwt-decode": "^4.0.0",
     "pkce": "^1.0.0-beta2",
     "pkce-challenge": "^4.1.0",
     "react": "^18.3.1",

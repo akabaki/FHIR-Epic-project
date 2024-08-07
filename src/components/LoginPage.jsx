@@ -26,7 +26,7 @@ const LoginBox = styled.div`
   height: 520px;
   background-color: #fff;
   padding: 10px;
-  border-radius: 3px;
+  border-radius: 10px;
   box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.33);
 `;
 
@@ -43,12 +43,10 @@ const HeaderLink = styled.div`
   display: inline-block;
   margin: 0 25px;
   padding: 10px;
-  color: ${props => (props.active ? '#029f5b' : '#666')};
+  color: #029f5b;
   font-family: 'Roboto', sans-serif;
-  font-weight: ${props => (props.active ? '700' : '400')};
-  font-size: ${props => (props.active ? '18px' : '15px')};
-  border-bottom: ${props => (props.active ? '2px solid #029f5b' : 'none')};
-  transition: color 0.3s ease, font-size 0.3s ease, font-weight 0.3s ease, border-bottom 0.3s ease;
+  font-weight:700;
+  font-size: 18px;
   cursor: default;
 `;
 
@@ -68,12 +66,12 @@ const SocialButton = styled.a`
   color: #fff;
   border: 1px solid rgba(0, 0, 0, 0.05);
   padding: 12px;
-  border-radius: 2px;
+  border-radius: 5px;
   font-size: 12px;
   text-transform: uppercase;
   margin: 0 3%;
   text-align: center;
-  background-color: ${props => props.bgColor};
+  background-color: #de3838;
   position: relative;
 `;
 
@@ -103,12 +101,12 @@ const FormGroup = styled.div`
 `;
 
 const Input = styled.input`
-  width: calc(50% - 22px);
-  height: 45px;
+  width: calc(65% - 22px);
+  height: 35px;
   outline: none;
   border: 1px solid #ddd;
   padding: 0 10px;
-  border-radius: 2px;
+  border-radius: 5px;
   color: #333;
   font-size: 0.8rem;
 
@@ -126,7 +124,7 @@ const Button = styled.button`
   font-size: 14px;
   font-weight: normal;
   padding: 14px 0;
-  border-radius: 2px;
+  border-radius: 5px;
   text-transform: uppercase;
 `;
 
@@ -186,12 +184,11 @@ const generateAvatarUrl = () => {
 };
 
 const LoginPage = () => {
-  const [avatarUrl, setAvatarUrl] = useState('');
+const [avatarUrl, setAvatarUrl] = useState('');
 const navigate = useNavigate();
   useEffect(() => {
     handleRedirect();
-
-    // setAvatarUrl(generateAvatarUrl());
+    setAvatarUrl(generateAvatarUrl());
   }, []);
   const handleRedirect = async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -215,7 +212,7 @@ const navigate = useNavigate();
       <LoginBox>
       <Avatar src={avatarUrl} alt="User Avatar" />
         <Header>
-          <HeaderLink active>
+          <HeaderLink>
             Login
           </HeaderLink>
         </Header>
@@ -237,7 +234,7 @@ const navigate = useNavigate();
           <Fieldset>
             <Legend>or Log In with</Legend>
             <SocialLogin>
-          <SocialButton bgColor="#DF4A32" href="#" onClick={handleLogin}>
+          <SocialButton  href="#" onClick={handleLogin}>
             <SocialIcon src={epicLogo} alt="Epic Logo" />
             Login with Epic
           </SocialButton>
