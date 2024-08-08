@@ -9,7 +9,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
   width: 100vw;
   background-color: #1cbb9b;
 `;
@@ -23,7 +23,6 @@ const Section = styled.div`
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;
-
 
 const Title = styled.h2`
   color: #FFF;
@@ -47,12 +46,11 @@ const Avatar = styled.img`
 `;
 
 const PatientDashboard = () => {
-const accessToken = localStorage.getItem("access_token")
+  const accessToken = localStorage.getItem("access_token")
   const [patient, setPatient] = useState(null);
   const [medications, setMedications] = useState([]);
   const [labReports, setLabReports] = useState([]);
   const [vitalSigns, setVitalSigns] = useState([]);
-
 
   useEffect(() => {
     if (accessToken) {
@@ -68,15 +66,13 @@ const accessToken = localStorage.getItem("access_token")
       // Fetch vital signs
       fetchVitalSigns(accessToken).then(data => setVitalSigns(data));
     }
-    
-    
   }, [accessToken]);
 
   if (!patient) return <div>Loading...</div>;
 
   return (
     <Container>
-        <Avatar src={avatar} alt="Patient Avatar" />
+      <Avatar src={avatar} alt="Patient Avatar" />
       <Section>
         <Title>Patient Information</Title>
         <div>Name: {patient.name}</div>
@@ -107,7 +103,7 @@ const accessToken = localStorage.getItem("access_token")
         <Title>Vital Signs</Title>
         <List>
           {vitalSigns.map(vital => (
-            <ListItem key={vital.id}>{vital.type}: {vital.value} {vital.unit}</ListItem>
+            <ListItem key={vital.id}>{vital.type}: {vital.value} {vital.unit} (Date: {vital.date})</ListItem>
           ))}
         </List>
       </Section>

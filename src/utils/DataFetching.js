@@ -85,17 +85,29 @@ export const fetchMedications = async (accessToken) => {
   
   
 
-  export const fetchLabReports = async (accessToken) => {
+// src/utils/LabReportsData.js
+
+export const fetchLabReports = async (accessToken) => {
+    const API_BASE_URL = 'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4';
+  
     try {
-      const response = await fetch(`${API_BASE_URL}/DiagnosticReport`, {
-        headers: { 'Authorization': `Bearer ${accessToken}`, "Accept":"application/json" },
+      const response = await fetch(`${API_BASE_URL}/DiagnosticReport?patient=erXuFYUfucBZaryVksYEcMg3`, {
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'Accept': 'application/json' },
       });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
       const data = await response.json();
       
+      // Filter out entries with "resourceType": "OperationOutcome"
+      const filteredEntries = (data.entry || []).filter(entry => entry.resource.resourceType !== 'OperationOutcome');
+      
       // Check if the data and properties are defined
-      return (data.entry || []).map(entry => ({
-        id: entry.resource?.id || 'Unknown',
-        title: entry.resource?.code?.text || 'Unknown',
+      return filteredEntries.map(entry => ({
+        id: entry.resource.id || 'Unknown',
+        title: entry.resource.code?.text || 'Unknown',
       }));
     } catch (error) {
       console.error('Error fetching lab reports:', error);
@@ -103,12 +115,12 @@ export const fetchMedications = async (accessToken) => {
     }
   };
   
+  
 
-// src/utils/VitalSignsData.js
-
-export const fetchVitalSigns = async (accessToken) => {
+  // src/utils/DataFetching.js
+  export const fetchVitalSigns = async (accessToken) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/Observation?patient=erXuFYUfucBZaryVksYEcMg3&code=vital-signs`, {
+      const response = await fetch(`${API_BASE_URL}/Observation?patient=erXuFYUfucBZaryVksYEcMg3&category=vital-signs`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Accept': 'application/json'
@@ -120,20 +132,47 @@ export const fetchVitalSigns = async (accessToken) => {
       }
   
       const data = await response.json();
-      console.log(`URL:${`${API_BASE_URL}/Observation?code=vital-signs`} data:${data}`)
+      console.log(`URL:${`${API_BASE_URL}/Observation?code=vital-signs`} data:${data}`);
   
       // Check if the entry array exists
-      const entries = data.entry || [];
+      const entries = (data.entry || []).filter(entry => entry.resource.resourceType !== 'OperationOutcome');
   
-      return entries.map(entry => ({
-        id: entry.resource?.id || 'Unknown',
-        type: entry.resource?.code?.text || 'Unknown',
-        value: entry.resource?.valueQuantity?.value || 'Unknown',
-        unit: entry.resource?.valueQuantity?.unit || 'Unknown',
-      }));
+      return entries.map(entry => {
+        const resource = entry.resource;
+        let vitalSign = {
+          id: resource.id || 'Unknown',
+          type: resource.code.text || 'Unknown',
+          value: 'Unknown',
+          unit: 'Unknown',
+          date: resource.effectiveDateTime || 'Unknown'
+        };
+  
+        // Handle different types of vital signs
+        if (resource.code.coding.some(code => code.code === '85354-9')) { // Blood pressure
+          const systolicComponent = resource.component?.find(c => c.code.coding.some(code => code.code === '8480-6'));
+          const diastolicComponent = resource.component?.find(c => c.code.coding.some(code => code.code === '8462-4'));
+          vitalSign.value = systolicComponent && diastolicComponent 
+            ? `${systolicComponent.valueQuantity.value}/${diastolicComponent.valueQuantity.value}` 
+            : 'Unknown';
+          vitalSign.unit = systolicComponent ? systolicComponent.valueQuantity.unit : 'Unknown';
+        } else if (resource.code.coding.some(code => code.code === '8310-5')) { // Temperature
+          vitalSign.value = resource.valueQuantity ? resource.valueQuantity.value : 'Unknown';
+          vitalSign.unit = resource.valueQuantity ? resource.valueQuantity.unit : 'Unknown';
+        } else if (resource.code.coding.some(code => code.code === '8867-4')) { // Pulse
+          vitalSign.value = resource.valueQuantity ? resource.valueQuantity.value : 'Unknown';
+          vitalSign.unit = resource.valueQuantity ? resource.valueQuantity.unit : 'Unknown';
+        } else if (resource.code.coding.some(code => code.code === '29463-7')) { // Weight
+          vitalSign.value = resource.valueQuantity ? resource.valueQuantity.value : 'Unknown';
+          vitalSign.unit = resource.valueQuantity ? resource.valueQuantity.unit : 'Unknown';
+        } else if (resource.code.coding.some(code => code.code === '8302-2')) { // Height
+          vitalSign.value = resource.valueQuantity ? resource.valueQuantity.value : 'Unknown';
+          vitalSign.unit = resource.valueQuantity ? resource.valueQuantity.unit : 'Unknown';
+        }
+  
+        return vitalSign;
+      });
     } catch (error) {
       console.error('Error fetching vital signs:', error);
       return [];
     }
   };
-  
